@@ -2,15 +2,17 @@
 #define FT_CONTAINERS_VECTOR_ITERATOR_HPP_
 #pragma once
 
+#include "iterator_traits.hpp"
 #include <iterator>
 
 namespace ft {
 template <class T> struct vector_iterator {
-  typedef std::random_access_iterator_tag iterator_category;
-  typedef T value_type;
-  typedef std::ptrdiff_t difference_type;
-  typedef T *pointer;
-  typedef T &reference;
+  typedef
+      typename ft::iterator_traits<T *>::iterator_category iterator_category;
+  typedef typename ft::iterator_traits<T *>::value_type value_type;
+  typedef typename ft::iterator_traits<T *>::difference_type difference_type;
+  typedef typename ft::iterator_traits<T *>::pointer pointer;
+  typedef typename ft::iterator_traits<T *>::reference reference;
 
   vector_iterator(void) : _cursor(NULL){};
   vector_iterator(value_type *const test) : _cursor(test){};
