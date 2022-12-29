@@ -10,7 +10,7 @@
 #include <memory>
 
 namespace ft {
-template <class T, class Allocator = std::allocator<T>> class vector {
+template <class T, class Allocator = std::allocator<T> > class vector {
 public:
   typedef T value_type;
   typedef Allocator allocator_type;
@@ -42,15 +42,15 @@ public:
       _allocator.construct(_vector + i, val);
   }
   template <class InputIterator>
-  vector(
-      InputIterator first, InputIterator last,
-      allocator_type const &alloc = allocator_type(),
-      typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type = 0)
+  vector(InputIterator first, InputIterator last,
+         allocator_type const &alloc = allocator_type(),
+         typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type
+             * = 0)
       : _allocator(alloc), _size(std::distance(first, last)),
         _capacity(std::distance(first, last)) {
     _vector = _allocator.allocate(_size);
-    for (; first < last; first++)
-      _allocator.construct(_vector, *first);
+    for (size_type i = 0; first < last; first++, i++)
+      _allocator.construct(_vector + i, *first);
   }
   vector(vector const &copy)
       : _allocator(allocator_type(copy.get_allocator())), _size(copy.size()),
@@ -73,7 +73,7 @@ public:
   const_iterator end(void) const { return const_iterator(_vector + _size); };
 
   const_iterator cbegin(void) const { return const_iterator(_vector); };
-  const_iterator cend(void) const { return const_iterator(_vector); };
+  const_iterator cend(void) const { return const_iterator(_vector + _size); };
 
   /*
   ** capacity

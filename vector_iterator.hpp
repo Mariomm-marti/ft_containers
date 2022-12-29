@@ -15,8 +15,9 @@ template <class T> struct vector_iterator {
   typedef typename ft::iterator_traits<T *>::reference reference;
 
   vector_iterator(void) : _cursor(NULL){};
-  vector_iterator(value_type *const test) : _cursor(test){};
-  template <class CopyIterator> vector_iterator(CopyIterator const &copy) {
+  vector_iterator(pointer const test) : _cursor(test){};
+  template <class CopyIterator>
+  vector_iterator(vector_iterator<CopyIterator> const &copy) {
     _cursor = copy.get_cursor();
   };
   vector_iterator(vector_iterator const &copy) { _cursor = copy._cursor; };
@@ -59,7 +60,13 @@ template <class T> struct vector_iterator {
   }
 
   vector_iterator operator+(int const diff) { return _cursor + diff; }
+  difference_type operator+(vector_iterator const diff) {
+    return _cursor + diff.get_cursor();
+  }
   vector_iterator operator-(int const diff) { return _cursor - diff; }
+  difference_type operator-(vector_iterator const diff) {
+    return _cursor - diff.get_cursor();
+  }
 
   bool operator<(vector_iterator const &rhs) const {
     return _cursor < (rhs.get_cursor());
