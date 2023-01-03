@@ -93,14 +93,24 @@ public:
   reference operator[](size_type n) { return *(_vector + n); }
   const_reference operator[](size_type n) const { return *(_vector + n); }
   reference at(size_type n) {
-    if (n < 0 || n >= _size)
+    if (n >= _size)
       throw std::out_of_range("accessing element out of range");
     return *(_vector + n);
   }
   const_reference at(size_type n) const {
-    if (n < 0 || n >= _size)
+    if (n >= _size)
       throw std::out_of_range("accessing element out of range");
     return *(_vector + n);
+  }
+  reference front(void) {
+    if (_size == 0 || _vector == NULL)
+      return NULL;
+    return *_vector;
+  }
+  const_reference front(void) const {
+    if (_size == 0 || _vector == NULL)
+      return NULL;
+    return *_vector;
   }
 };
 }; // namespace ft
