@@ -10,7 +10,7 @@
 #include <memory>
 
 namespace ft {
-template <class T, class Allocator = std::allocator<T> > class vector {
+template <class T, class Allocator = std::allocator<T>> class vector {
 public:
   typedef T value_type;
   typedef Allocator allocator_type;
@@ -32,15 +32,18 @@ private:
   size_type _capacity;
 
 public:
+  /*
+  ** initialisators
+  */
   explicit vector(allocator_type const &alloc = allocator_type())
-      : _vector(NULL), _allocator(alloc), _size(0), _capacity(0) {}
+      : _vector(NULL), _allocator(alloc), _size(0), _capacity(0){};
   explicit vector(size_type n, value_type const &val = value_type(),
                   allocator_type const &alloc = allocator_type())
       : _allocator(alloc), _size(n), _capacity(n) {
-    _vector = _allocator.allocate(_size);
+    _vector = _allocator.allocate(_capacity);
     for (size_type i = 0; i < _size; i++)
       _allocator.construct(_vector + i, val);
-  }
+  };
   template <class InputIterator>
   vector(InputIterator first, InputIterator last,
          allocator_type const &alloc = allocator_type(),
@@ -51,7 +54,7 @@ public:
     _vector = _allocator.allocate(_size);
     for (size_type i = 0; first < last; first++, i++)
       _allocator.construct(_vector + i, *first);
-  }
+  };
   vector(vector const &copy)
       : _allocator(allocator_type(copy.get_allocator())), _size(copy.size()),
         _capacity(copy.capacity()) {
@@ -61,31 +64,85 @@ public:
     _vector = _allocator.allocate(_capacity);
     for (size_type i = 0; begin < end; begin++, i++)
       _allocator.construct(_vector + i, value_type(*begin));
-  }
+  };
+  ~vector(void) {
+    if (_capacity == 0 || !_vector)
+      return;
+    const_iterator begin = cbegin();
+    const_iterator end = cend();
+
+    std::cout << "bye bye" << std::endl;
+    for (size_type i = 0; begin < end; begin++, i++)
+      _allocator.destroy(_vector + i);
+    _allocator.deallocate(_vector, _capacity);
+  };
+
+  vector &operator=(vector const &x) {
+    const_iterator begin = x.cbegin();
+    const_iterator end = x.cend();
+
+    if ()
+      _allocator = allocator_type(x.get_allocator());
+    _size = x.size();
+    _capacity = x.capacity();
+
+    _vector = _allocator.allocate(_capacity);
+    for (size_type i = 0; begin < end; begin++, i++)
+      _allocator.construct(_vector + i, value_type(*begin));
+    return *this;
+  };
 
   /*
   ** iterators
   */
-  iterator begin(void) { return iterator(_vector); };
-  const_iterator begin(void) const { return const_iterator(_vector); };
+  iterator begin(void) {
+    if (_vector == NULL)
+      return NULL;
+    return iterator(_vector);
+  };
+  const_iterator begin(void) const {
+    if (_vector == NULL)
+      return NULL;
+    return const_iterator(_vector);
+  };
 
-  iterator end(void) { return iterator(_vector + _size); }
-  const_iterator end(void) const { return const_iterator(_vector + _size); };
+  iterator end(void) {
+    if (_vector == NULL)
+      return NULL;
+    return iterator(_vector + _size);
+  };
+  const_iterator end(void) const {
+    if (_vector == NULL)
+      return NULL;
+    return const_iterator(_vector + _size);
+  };
 
-  const_iterator cbegin(void) const { return const_iterator(_vector); };
-  const_iterator cend(void) const { return const_iterator(_vector + _size); };
+  const_iterator cbegin(void) const {
+    if (_vector == NULL)
+      return NULL;
+    return const_iterator(_vector);
+  };
+  const_iterator cend(void) const {
+    if (_vector == NULL)
+      return NULL;
+    return const_iterator(_vector + _size);
+  };
 
   /*
   ** capacity
   */
-  size_type size(void) const { return _size; }
-  size_type max_size(void) const { return _allocator.max_size(); }
-  size_type capacity(void) const { return _capacity; }
+  size_type size(void) const { return _size; };
+  size_type max_size(void) const { return _allocator.max_size(); };
+  void resize(size_type n, value_type val = value_type()) {
+    (void)n;
+    (void)val;
+  };
+  size_type capacity(void) const { return _capacity; };
 
   /*
   ** allocator
   */
-  allocator_type get_allocator(void) const { return _allocator; }
+  allocator_type get_allocator(void) const { return _allocator; };
 }; // template vector
 } // namespace ft
 #endif
