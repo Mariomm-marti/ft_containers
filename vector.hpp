@@ -134,12 +134,19 @@ public:
     size_type operation_length = std::distance(first, last);
 
     clear();
-    if (operation_length > _capacity)
-      reserve(operation_length);
+    reserve(operation_length);
     _size = operation_length;
     for (size_type i = 0; i < _size; i++, first++)
       _allocator.construct(_vector + i, *first);
   }
+  void assign(size_type n, value_type const &val) {
+    clear();
+    reserve(n);
+    _size = n;
+    for (size_type i = 0; i < _size; i++)
+      _allocator.construct(_vector + i, val);
+  }
+  void push_back(value_type const &val) {}
   void clear(void) {
     for (size_type i = 0; i < _size; i++)
       _allocator.destroy(_vector + i);
