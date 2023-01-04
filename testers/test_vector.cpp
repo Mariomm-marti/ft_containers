@@ -20,7 +20,30 @@ void test_resize(void) {
   std::cout << "ca " << b.capacity() << std::endl;
 }
 
+void test_reserve(void) {
+  ft::vector<int> a;
+  std::vector<int> b(40, 19);
+
+  b.reserve(39);
+  std::cout << "Capacity: " << b.capacity() << std::endl;
+}
+
+void tests(void) {
+  std::allocator<size_t> alloc;
+  size_t *ptr;
+
+  ptr = alloc.allocate(20);
+  for (size_t i = 0; i < 20; i++)
+    alloc.construct(ptr + i, i);
+  for (size_t i = 0; i < 20; i++)
+    std::cout << *(ptr + i) << std::endl;
+}
+
 int main(void) {
+  //////////////////////////////
+  tests();
+  //////////////////////////////
   test_default_constructor();
   test_resize();
+  test_reserve();
 }
