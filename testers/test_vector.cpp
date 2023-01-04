@@ -3,6 +3,7 @@
 #include <cstring>
 #include <exception>
 #include <iostream>
+#include <iterator>
 #include <vector>
 
 void test_default_constructor(void) {
@@ -17,7 +18,6 @@ void test_resize(void) {
   std::vector<int> b;
 
   b.resize(10);
-  std::cout << "ca " << b.capacity() << std::endl;
 }
 
 void test_reserve(void) {
@@ -25,7 +25,6 @@ void test_reserve(void) {
   std::vector<int> b(40, 19);
 
   b.reserve(39);
-  std::cout << "Capacity: " << b.capacity() << std::endl;
 }
 
 void tests(void) {
@@ -37,6 +36,11 @@ void tests(void) {
     alloc.construct(ptr + i, i);
   for (size_t i = 0; i < 20; i++)
     std::cout << *(ptr + i) << std::endl;
+
+  std::vector<int> a(42, 10);
+  std::vector<int> b(56, 10);
+  a.assign(b.begin(), b.end());
+  std::cout << "cap " << a.capacity() << std::endl;
 }
 
 int main(void) {

@@ -38,11 +38,17 @@ public:
    */
   explicit vector(allocator_type const &alloc = allocator_type())
       : _vector(NULL), _allocator(alloc), _size(0), _capacity(0) {}
-  // > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >
-  // > > > > > > > > > > > > > > > > > > > > > > > explicit vector(size_type n,
-  // value_type const &val = value_type(),
-  //                allocator_type const &alloc = allocator_type())
-  //   : _allocator(alloc), _size(n), _capacity(n) {}
+  explicit vector(size_type n, value_type const &val = value_type(),
+                  allocator_type const &alloc = allocator_type())
+      : _allocator(alloc), _size(n), _capacity(n) {
+    _vector = _allocator.allocate(_capacity);
+    for (size_type i = 0; i < _size; i++)
+      _allocator.construct(_vector + i, val);
+  }
+  template <class InputIterator>
+  vector(typename ft::enable_if<!ft::is_integral<InputIterator>::value,
+                                InputIterator>::type first,
+         InputIterator last, allocator_type const &alloc = allocator_type()) {}
 
   /*
    * iterators [FINISHED]
@@ -61,14 +67,6 @@ public:
   const_reverse_iterator rend(void) const {
     return const_reverse_iterator(_vector - 1);
   }
-  const_iterator cbegin(void) const { return const_iterator(_vector); }
-  const_iterator cend(void) const { return const_iterator(_vector + _size); }
-  const_reverse_iterator crbegin(void) const {
-    return const_reverse_iterator(_vector + _size - 1);
-  }
-  const_reverse_iterator crend(void) const {
-    return const_reverse_iterator(_vector - 1);
-  }
 
   /*
    * capacity
@@ -76,15 +74,18 @@ public:
   size_type size(void) const { return _size; }
   size_type max_size(void) const { return _allocator.max_size(); }
   void resize(size_type n, value_type val = value_type()) {
+    // > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >
+    // > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >
+    // > > > >.
     if (n < _size)
       ;
-    if (n > _capacity)
-      ; // resize and move with check of capacity * 2 < n
+    if (n > _capacity && _capacity * 2 >= n)
+      reserve(_capacity * 2); // resize and move with check of capacity * 2 < n
     if (n > _size)
       ; // move elements
   }
   size_type capacity(void) const { return _capacity; }
-  bool empty(void) const { return _size == 0; }
+  bool empty(void) const { return _size == 0 || _vector == NULL; }
   void reserve(size_type n) {
     pointer tmp;
 
@@ -94,6 +95,10 @@ public:
       throw std::length_error("attempting to reserve larger than max_size");
     tmp = _allocator.allocate(n);
     for (size_type i = 0; i < _size; i++)
+      *(tmp + i) = *(_vector + i);
+    _allocator.deallocate(_vector, _capacity);
+    _capacity = n;
+    _vector = tmp;
   }
 
   /*
@@ -121,10 +126,25 @@ public:
   /*
    * modifiers
    */
-  // > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >
-  // > > > > > > > > > > > > > > > > > > > > > > >
   template <class InputIterator>
-  void assign(InputIterator first, InputIterator last) {}
+  void
+  assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type
+             first,
+         InputIterator last) {
+    size_type operation_length = std::distance(first, last);
+
+    clear();
+    if (operation_length > _capacity)
+      reserve(operation_length);
+    _size = operation_length;
+    for (size_type i = 0; i < _size; i++, first++)
+      _allocator.construct(_vector + i, *first);
+  }
+  void clear(void) {
+    for (size_type i = 0; i < _size; i++)
+      _allocator.destroy(_vector + i);
+    _size = 0;
+  }
 
   /*
    * allocator [FINISHED]
