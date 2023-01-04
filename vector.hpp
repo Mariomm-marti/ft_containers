@@ -146,7 +146,27 @@ public:
     for (size_type i = 0; i < _size; i++)
       _allocator.construct(_vector + i, val);
   }
-  void push_back(value_type const &val) {}
+  void push_back(value_type const &val) {
+    if (_size + 1 > _capacity)
+      reserve(_capacity * 2);
+    // >>>>>>>>>>>>>>>>>>>>
+  }
+  iterator erase(iterator position) {
+    _allocator.destroy(*position);
+    for (iterator it = position; it + 1 != end(); it++)
+      *it = *(it + 1);
+    _size = _size - 1;
+    return position + 1;
+  }
+  iterator erase(iterator first, iterator last) {
+    for (iterator it = first; it < last; it++)
+      _allocator.destroy(*it);
+    _size = _size - (last - first);
+    iterator itptr = first;
+    for (iterator it = last; it < end(); it++, itptr++)
+      *it = *(it + 1);
+    return first;
+  }
   void clear(void) {
     for (size_type i = 0; i < _size; i++)
       _allocator.destroy(_vector + i);
