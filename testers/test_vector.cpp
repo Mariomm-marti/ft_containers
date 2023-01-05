@@ -42,17 +42,19 @@ void test_multi_insert_many(void) {
 }
 
 void test_insert_iterator(void) {
-  std::vector<int> test1(40, 20);
+  std::vector<int> teststd(40, 20);
+  ft::vector<int> testft(40, 20);
   std::vector<int> vstd;
   ft::vector<int> vft;
 
-  vstd.insert(vstd.begin(), test1.begin(), test1.end());
-  test1.assign(4, 21);
-  vstd.insert(vstd.begin() + 4, test1.begin(), test1.end());
-  test1.assign(40, 20);
-  vft.insert(vft.begin(), test1.begin(), test1.end());
-  test1.assign(4, 21);
-  vft.insert(vft.begin() + 4, test1.begin(), test1.end());
+  vstd.insert(vstd.begin(), teststd.begin(), teststd.end());
+  teststd.assign(4, 21);
+  vstd.insert(vstd.begin() + 4, teststd.begin(), teststd.end());
+
+  vft.insert(vft.begin(), testft.begin(), testft.end());
+  testft.assign(4, 21);
+  vft.insert(vft.begin() + 4, testft.begin(), testft.end());
+
   std::vector<int>::iterator it = vstd.begin();
   ft::vector<int>::iterator it2 = vft.begin();
   while (it < vstd.end() || it2 < vft.end())

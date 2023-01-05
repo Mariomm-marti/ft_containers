@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 namespace ft {
-template <class T, class Allocator = std::allocator<T> > class vector {
+template <class T, class Allocator = std::allocator<T>> class vector {
 public:
   typedef T value_type;
   typedef Allocator allocator_type;
@@ -42,18 +42,24 @@ public:
   explicit vector(size_type n, value_type const &val = value_type(),
                   allocator_type const &alloc = allocator_type())
       : _allocator(alloc), _size(n), _capacity(n) {
-    _vector = _allocator.allocate(_capacity);
-    for (size_type i = 0; i < _size; i++)
-      _allocator.construct(_vector + i, val);
+    assign(n, val);
   }
   template <class InputIterator>
   vector(typename ft::enable_if<!ft::is_integral<InputIterator>::value,
                                 InputIterator>::type first,
-         InputIterator last, allocator_type const &alloc = allocator_type()) {}
+         InputIterator last, allocator_type const &alloc = allocator_type()) {
+    assign(first, last);
+  }
+  vector(vector const &x) { assign(x.begin(), x.end()); }
   virtual ~vector(void) {
     for (difference_type i = 0; i < _size; i++)
       _allocator.destroy(_vector + i);
     _allocator.deallocate(_vector, _capacity);
+  }
+  vector &operator=(vector const &x) {
+    clear();
+    assign(x.begin(), x.end());
+    return *this;
   }
 
   /*
@@ -80,15 +86,10 @@ public:
   size_type size(void) const { return _size; }
   size_type max_size(void) const { return _allocator.max_size(); }
   void resize(size_type n, value_type val = value_type()) {
-    // > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >
-    // > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >
-    // > > > >.
     if (n < _size)
-      ;
-    if (n > _capacity && _capacity * 2 >= n)
-      reserve(_capacity * 2); // resize and move with check of capacity * 2 < n
-    if (n > _size)
-      ; // move elements
+      erase(begin() + n, end());
+    else
+      insert(end(), n, val);
   }
   size_type capacity(void) const { return _capacity; }
   bool empty(void) const { return _size == 0; }
@@ -151,6 +152,8 @@ public:
     for (size_type i = 0; i < _size; i++)
       _allocator.construct(_vector + i, val);
   }
+  void push_back(value_type const &val) { insert(end(), val); }
+  void pop_back(void) { erase(end() - 1); }
   iterator insert(iterator position, value_type const &val) {
     difference_type idx = position.base() - _vector;
 
@@ -174,11 +177,10 @@ public:
       insert(_vector + idx + i, val);
   }
   template <class InputIterator>
-  void
-  insert(iterator position,
-         typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type
-             first,
-         InputIterator last) {
+  void insert(iterator position,
+              typename ft::enable_if<!ft::is_integral<InputIterator>::value,
+                                     InputIterator>::type first,
+              InputIterator last) {
     difference_type idx = position.base() - _vector;
 
     for (; first < last; first++, idx++)
@@ -199,6 +201,21 @@ public:
     for (iterator it = last; it < end(); it++, itptr++)
       *itptr = *it;
     return first;
+  }
+  void swap(vector &x) {
+    pointer tmp_inner_structure;
+    size_type tmp_size;
+    size_type tmp_capacity;
+
+    tmp_inner_structure = x._vector;
+    x._vector = _vector;
+    _vector = tmp_inner_structure;
+    tmp_size = x._size;
+    x._size = _size;
+    _size = tmp_size;
+    tmp_capacity = x._capacity;
+    x._capacity = _capacity;
+    _capacity = tmp_capacity;
   }
   void clear(void) {
     for (size_type i = 0; i < _size; i++)
