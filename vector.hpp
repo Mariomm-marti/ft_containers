@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 namespace ft {
-template <class T, class Allocator = std::allocator<T>> class vector {
+template <class T, class Allocator = std::allocator<T> > class vector {
 public:
   typedef T value_type;
   typedef Allocator allocator_type;
@@ -41,18 +41,19 @@ public:
       : _vector(NULL), _allocator(alloc), _size(0), _capacity(0) {}
   explicit vector(size_type n, value_type const &val = value_type(),
                   allocator_type const &alloc = allocator_type())
-      : _allocator(alloc), _size(n), _capacity(n) {
+      : _vector(NULL), _allocator(alloc), _size(0), _capacity(0) {
     assign(n, val);
   }
   template <class InputIterator>
   vector(typename ft::enable_if<!ft::is_integral<InputIterator>::value,
                                 InputIterator>::type first,
-         InputIterator last, allocator_type const &alloc = allocator_type()) {
+         InputIterator last, allocator_type const &alloc = allocator_type())
+      : _vector(NULL), _allocator(alloc), _size(0), _capacity(0) {
     assign(first, last);
   }
   vector(vector const &x) { assign(x.begin(), x.end()); }
   virtual ~vector(void) {
-    for (difference_type i = 0; i < _size; i++)
+    for (size_type i = 0; i < _size; i++)
       _allocator.destroy(_vector + i);
     _allocator.deallocate(_vector, _capacity);
   }
@@ -133,10 +134,9 @@ public:
    * modifiers
    */
   template <class InputIterator>
-  void
-  assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type
-             first,
-         InputIterator last) {
+  void assign(typename ft::enable_if<!ft::is_integral<InputIterator>::value,
+                                     InputIterator>::type first,
+              InputIterator last) {
     size_type operation_length = std::distance(first, last);
 
     clear();
@@ -155,11 +155,11 @@ public:
   void push_back(value_type const &val) { insert(end(), val); }
   void pop_back(void) { erase(end() - 1); }
   iterator insert(iterator position, value_type const &val) {
-    difference_type idx = position.base() - _vector;
+    size_type idx = position.base() - _vector;
 
     if (_size + 1 > _capacity)
       reserve(_capacity * 2);
-    difference_type i = idx;
+    size_type i = idx;
     while (i < _size) {
       *(_vector + i + 1) = *(_vector + i);
       i++;
