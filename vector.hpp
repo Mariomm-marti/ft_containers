@@ -1,17 +1,18 @@
 #ifndef FT_CONTAINERS_VECTOR_HPP_
 #define FT_CONTAINERS_VECTOR_HPP_
-#include <stdexcept>
 #pragma once
 
 #include "enable_if.hpp"
 #include "is_integral.hpp"
 #include "reverse_iterator.hpp"
 #include "vector_iterator.hpp"
+#include <iostream>
 #include <iterator>
 #include <memory>
+#include <stdexcept>
 
 namespace ft {
-template <class T, class Allocator = std::allocator<T>> class vector {
+template <class T, class Allocator = std::allocator<T> > class vector {
 public:
   typedef T value_type;
   typedef Allocator allocator_type;
@@ -49,9 +50,14 @@ public:
   vector(typename ft::enable_if<!ft::is_integral<InputIterator>::value,
                                 InputIterator>::type first,
          InputIterator last, allocator_type const &alloc = allocator_type()) {}
+  virtual ~vector(void) {
+    for (difference_type i = 0; i < _size; i++)
+      _allocator.destroy(_vector + i);
+    _allocator.deallocate(_vector, _capacity);
+  }
 
   /*
-   * iterators [FINISHED]
+   * iterators
    */
   iterator begin(void) { return iterator(_vector); }
   const_iterator begin(void) const { return const_iterator(_vector); }
@@ -85,7 +91,7 @@ public:
       ; // move elements
   }
   size_type capacity(void) const { return _capacity; }
-  bool empty(void) const { return _size == 0 || _vector == NULL; }
+  bool empty(void) const { return _size == 0; }
   void reserve(size_type n) {
     pointer tmp;
 
@@ -96,13 +102,14 @@ public:
     tmp = _allocator.allocate(n);
     for (size_type i = 0; i < _size; i++)
       *(tmp + i) = *(_vector + i);
-    _allocator.deallocate(_vector, _capacity);
+    if (_vector)
+      _allocator.deallocate(_vector, _capacity);
     _capacity = n;
     _vector = tmp;
   }
 
   /*
-   * element access [FINISHED]
+   * element access
    */
   reference operator[](size_type n) { return *(_vector + n); }
   const_reference operator[](size_type n) const { return *(_vector + n); }
@@ -120,8 +127,6 @@ public:
   const_reference front(void) const { return *_vector; }
   reference back(void) { return *(_vector + _size - 1); }
   const_reference back(void) const { return *(_vector + _size - 1); }
-  pointer data(void) { return _vector; }
-  const_pointer data(void) const { return _vector; }
 
   /*
    * modifiers
@@ -146,17 +151,45 @@ public:
     for (size_type i = 0; i < _size; i++)
       _allocator.construct(_vector + i, val);
   }
-  void push_back(value_type const &val) {
+  iterator insert(iterator position, value_type const &val) {
+    difference_type idx = position.base() - _vector;
+
     if (_size + 1 > _capacity)
       reserve(_capacity * 2);
-    // >>>>>>>>>>>>>>>>>>>>
+    difference_type i = idx;
+    while (i < _size) {
+      *(_vector + i + 1) = *(_vector + i);
+      i++;
+    }
+    _allocator.construct(_vector + idx, val);
+    _size++;
+    return iterator(_vector + idx);
+  }
+  void insert(iterator position, size_type n, value_type const &val) {
+    difference_type idx = position.base() - _vector;
+
+    if (_size + n > _capacity && _capacity * 2 < n)
+      reserve(_size + n);
+    for (size_type i = 0; i < n; i++)
+      insert(_vector + idx + i, val);
+  }
+  template <class InputIterator>
+  void
+  insert(iterator position,
+         typename ft::enable_if<!ft::is_integral<InputIterator>::value>::type
+             first,
+         InputIterator last) {
+    difference_type idx = position.base() - _vector;
+
+    for (; first < last; first++, idx++)
+      insert(_vector + idx, *first);
   }
   iterator erase(iterator position) {
     _allocator.destroy(*position);
     for (iterator it = position; it + 1 != end(); it++)
       *it = *(it + 1);
     _size = _size - 1;
-    return position + 1;
+    return position;
   }
   iterator erase(iterator first, iterator last) {
     for (iterator it = first; it < last; it++)
@@ -164,7 +197,7 @@ public:
     _size = _size - (last - first);
     iterator itptr = first;
     for (iterator it = last; it < end(); it++, itptr++)
-      *it = *(it + 1);
+      *itptr = *it;
     return first;
   }
   void clear(void) {
@@ -174,7 +207,7 @@ public:
   }
 
   /*
-   * allocator [FINISHED]
+   * allocator
    */
   allocator_type get_allocator(void) const { return _allocator; }
 };

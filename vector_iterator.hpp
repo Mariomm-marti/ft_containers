@@ -18,20 +18,20 @@ template <class T> struct vector_iterator {
   vector_iterator(pointer const test) : _cursor(test){};
   template <class CopyIterator>
   vector_iterator(vector_iterator<CopyIterator> const &copy) {
-    _cursor = copy.get_cursor();
+    _cursor = copy.base();
   };
   vector_iterator(vector_iterator const &copy) { _cursor = copy._cursor; };
 
   vector_iterator &operator=(vector_iterator const &rhs) {
-    _cursor = rhs.get_cursor();
+    _cursor = rhs.base();
     return *this;
   }
 
   bool operator==(vector_iterator const &rhs) const {
-    return _cursor == (rhs.get_cursor());
+    return _cursor == (rhs.base());
   }
   bool operator!=(vector_iterator const &rhs) const {
-    return _cursor != (rhs.get_cursor());
+    return _cursor != (rhs.base());
   }
 
   reference operator*(void) { return *_cursor; }
@@ -59,29 +59,29 @@ template <class T> struct vector_iterator {
     return old;
   }
 
-  vector_iterator operator+(int const diff) { return _cursor + diff; }
-  difference_type operator+(vector_iterator const diff) {
-    return _cursor + diff.get_cursor();
+  vector_iterator operator+(int const diff) const { return _cursor + diff; }
+  difference_type operator+(vector_iterator const diff) const {
+    return _cursor + diff.base();
   }
-  vector_iterator operator-(int const diff) { return _cursor - diff; }
-  difference_type operator-(vector_iterator const diff) {
-    return _cursor - diff.get_cursor();
+  vector_iterator operator-(int const diff) const { return _cursor - diff; }
+  difference_type operator-(vector_iterator const diff) const {
+    return _cursor - diff.base();
   }
 
   bool operator<(vector_iterator const &rhs) const {
-    return _cursor < (rhs.get_cursor());
+    return _cursor < (rhs.base());
   }
 
   bool operator>(vector_iterator const &rhs) const {
-    return _cursor > (rhs.get_cursor());
+    return _cursor > (rhs.base());
   }
 
   bool operator<=(vector_iterator const &rhs) const {
-    return _cursor <= (rhs.get_cursor());
+    return _cursor <= (rhs.base());
   }
 
   bool operator>=(vector_iterator const &rhs) const {
-    return _cursor >= (rhs.get_cursor());
+    return _cursor >= (rhs.base());
   }
 
   vector_iterator &operator+=(int const rhs) {
@@ -96,7 +96,7 @@ template <class T> struct vector_iterator {
 
   reference operator[](std::size_t const idx) const { return *(_cursor + idx); }
 
-  pointer const get_cursor(void) const { return _cursor; }
+  pointer const base(void) const { return _cursor; }
 
 private:
   pointer _cursor;
