@@ -57,47 +57,47 @@ private:
   iterator_type _it;
 };
 
-template <class Iterator>
+template <class Iterator, class CmpIterator>
 bool operator==(reverse_iterator<Iterator> const &lhs,
-                reverse_iterator<Iterator> const &rhs) {
+                reverse_iterator<CmpIterator> const &rhs) {
   return lhs.base() == rhs.base();
 }
-template <class Iterator>
+template <class Iterator, class CmpIterator>
 bool operator!=(reverse_iterator<Iterator> const &lhs,
-                reverse_iterator<Iterator> const &rhs) {
+                reverse_iterator<CmpIterator> const &rhs) {
   return lhs.base() != rhs.base();
 }
-template <class Iterator>
+template <class Iterator, class CmpIterator>
 bool operator<(reverse_iterator<Iterator> const &lhs,
-               reverse_iterator<Iterator> const &rhs) {
-  return lhs.base() < rhs.base();
-}
-template <class Iterator>
-bool operator<=(reverse_iterator<Iterator> const &lhs,
-                reverse_iterator<Iterator> const &rhs) {
-  return lhs.base() <= rhs.base();
-}
-template <class Iterator>
-bool operator>(reverse_iterator<Iterator> const &lhs,
-               reverse_iterator<Iterator> const &rhs) {
+               reverse_iterator<CmpIterator> const &rhs) {
   return lhs.base() > rhs.base();
 }
-template <class Iterator>
-bool operator>=(reverse_iterator<Iterator> const &lhs,
-                reverse_iterator<Iterator> const &rhs) {
+template <class Iterator, class CmpIterator>
+bool operator<=(reverse_iterator<Iterator> const &lhs,
+                reverse_iterator<CmpIterator> const &rhs) {
   return lhs.base() >= rhs.base();
+}
+template <class Iterator, class CmpIterator>
+bool operator>(reverse_iterator<Iterator> const &lhs,
+               reverse_iterator<CmpIterator> const &rhs) {
+  return lhs.base() < rhs.base();
+}
+template <class Iterator, class CmpIterator>
+bool operator>=(reverse_iterator<Iterator> const &lhs,
+                reverse_iterator<CmpIterator> const &rhs) {
+  return lhs.base() <= rhs.base();
 }
 template <class Iterator>
 reverse_iterator<Iterator>
 operator+(typename reverse_iterator<Iterator>::difference_type n,
           reverse_iterator<Iterator> const &rev_it) {
-  return rev_it + n;
+  return reverse_iterator<Iterator>(rev_it.base() - n);
 }
-template <class Iterator>
+template <class Iterator, class CmpIterator>
 typename reverse_iterator<Iterator>::difference_type
 operator-(reverse_iterator<Iterator> const &lhs,
-          reverse_iterator<Iterator> const &rhs) {
-  return lhs - rhs;
+          reverse_iterator<CmpIterator> const &rhs) {
+  return rhs.base() - lhs.base();
 }
 }; // namespace ft
 
