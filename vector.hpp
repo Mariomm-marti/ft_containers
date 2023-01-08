@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 namespace ft {
-template <class T, class Allocator = std::allocator<T> > class vector {
+template <class T, class Allocator = std::allocator<T>> class vector {
 public:
   typedef T value_type;
   typedef Allocator allocator_type;
@@ -51,7 +51,10 @@ public:
       : _vector(NULL), _allocator(alloc), _size(0), _capacity(0) {
     assign(first, last);
   }
-  vector(vector const &x) { assign(x.begin(), x.end()); }
+  vector(vector const &x)
+      : _vector(NULL), _allocator(x.get_allocator()), _size(0), _capacity(0) {
+    assign(x.begin(), x.end());
+  }
   virtual ~vector(void) {
     for (size_type i = 0; i < _size; i++)
       _allocator.destroy(_vector + i);
@@ -183,7 +186,7 @@ public:
               InputIterator last) {
     difference_type idx = position.base() - _vector;
 
-    for (; first < last; first++, idx++)
+    for (; first != last; first++, idx++)
       insert(_vector + idx, *first);
   }
   iterator erase(iterator position) {
