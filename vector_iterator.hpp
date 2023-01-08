@@ -22,16 +22,19 @@ template <class T> struct vector_iterator {
   };
   vector_iterator(vector_iterator const &copy) { _cursor = copy._cursor; };
 
-  vector_iterator &operator=(vector_iterator const &rhs) {
+  template <class Iter>
+  vector_iterator &operator=(vector_iterator<Iter> const &rhs) {
     _cursor = rhs.base();
     return *this;
   }
 
-  bool operator==(vector_iterator const &rhs) const {
-    return _cursor == (rhs.base());
+  template <class Iter>
+  bool operator==(vector_iterator<Iter> const &rhs) const {
+    return _cursor == rhs.base();
   }
-  bool operator!=(vector_iterator const &rhs) const {
-    return _cursor != (rhs.base());
+  template <class Iter>
+  bool operator!=(vector_iterator<Iter> const &rhs) const {
+    return _cursor != rhs.base();
   }
 
   reference operator*(void) { return *_cursor; }
@@ -60,28 +63,32 @@ template <class T> struct vector_iterator {
   }
 
   vector_iterator operator+(int const diff) const { return _cursor + diff; }
-  difference_type operator+(vector_iterator const diff) const {
+  template <class Iter>
+  difference_type operator+(vector_iterator<Iter> const diff) const {
     return _cursor + diff.base();
   }
   vector_iterator operator-(int const diff) const { return _cursor - diff; }
-  difference_type operator-(vector_iterator const diff) const {
+  template <class Iter>
+  difference_type operator-(vector_iterator<Iter> const diff) const {
     return _cursor - diff.base();
   }
 
-  bool operator<(vector_iterator const &rhs) const {
-    return _cursor < (rhs.base());
+  template <class Iter> bool operator<(vector_iterator<Iter> const &rhs) const {
+    return _cursor < rhs.base();
   }
 
-  bool operator>(vector_iterator const &rhs) const {
-    return _cursor > (rhs.base());
+  template <class Iter> bool operator>(vector_iterator<Iter> const &rhs) const {
+    return _cursor > rhs.base();
   }
 
-  bool operator<=(vector_iterator const &rhs) const {
-    return _cursor <= (rhs.base());
+  template <class Iter>
+  bool operator<=(vector_iterator<Iter> const &rhs) const {
+    return _cursor <= rhs.base();
   }
 
-  bool operator>=(vector_iterator const &rhs) const {
-    return _cursor >= (rhs.base());
+  template <class Iter>
+  bool operator>=(vector_iterator<Iter> const &rhs) const {
+    return _cursor >= rhs.base();
   }
 
   vector_iterator &operator+=(int const rhs) {
@@ -101,5 +108,12 @@ template <class T> struct vector_iterator {
 private:
   pointer _cursor;
 };
+
+template <class T>
+vector_iterator<T>
+operator+(typename vector_iterator<T>::difference_type const n,
+          vector_iterator<T> const &rhs) {
+  return vector_iterator<T>(rhs.base() + n);
+}
 } // namespace ft
 #endif
