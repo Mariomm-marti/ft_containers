@@ -1,5 +1,6 @@
 #ifndef FT_CONTAINERS_VECTOR_HPP_
 #define FT_CONTAINERS_VECTOR_HPP_
+#include "lexicographical_compare.hpp"
 #pragma once
 
 #include "enable_if.hpp"
@@ -12,7 +13,7 @@
 #include <stdexcept>
 
 namespace ft {
-template <class T, class Allocator = std::allocator<T>> class vector {
+template <class T, class Allocator = std::allocator<T> > class vector {
 public:
   typedef T value_type;
   typedef Allocator allocator_type;
@@ -73,15 +74,13 @@ public:
   const_iterator begin(void) const { return const_iterator(_vector); }
   iterator end(void) { return iterator(_vector + _size); }
   const_iterator end(void) const { return const_iterator(_vector + _size); }
-  reverse_iterator rbegin(void) {
-    return reverse_iterator(_vector + _size - 1);
-  }
+  reverse_iterator rbegin(void) { return reverse_iterator(_vector + _size); }
   const_reverse_iterator rbegin(void) const {
-    return const_reverse_iterator(_vector + _size - 1);
+    return const_reverse_iterator(_vector + _size);
   }
-  reverse_iterator rend(void) { return reverse_iterator(_vector - 1); }
+  reverse_iterator rend(void) { return reverse_iterator(_vector); }
   const_reverse_iterator rend(void) const {
-    return const_reverse_iterator(_vector - 1);
+    return const_reverse_iterator(_vector);
   }
 
   /*
@@ -93,7 +92,7 @@ public:
     if (n < _size)
       erase(begin() + n, end());
     else
-      insert(end(), n, val);
+      insert(end(), n - size(), val);
   }
   size_type capacity(void) const { return _capacity; }
   bool empty(void) const { return _size == 0; }
@@ -158,36 +157,39 @@ public:
   void push_back(value_type const &val) { insert(end(), val); }
   void pop_back(void) { erase(end() - 1); }
   iterator insert(iterator position, value_type const &val) {
-    size_type idx = position.base() - _vector;
+    size_type index = std::distance(begin(), position);
 
     if (_size + 1 > _capacity)
-      reserve(_capacity * 2);
-    size_type i = idx;
-    while (i < _size) {
-      *(_vector + i + 1) = *(_vector + i);
-      i++;
-    }
-    _allocator.construct(_vector + idx, val);
+      reserve(_capacity * 2 + !_capacity);
+    position = iterator(_vector + index);
+    for (iterator current = end(); current > position; --current)
+      *current = *(current - 1);
+    _allocator.construct(position.base(), val);
     _size++;
-    return iterator(_vector + idx);
+    return position;
   }
   void insert(iterator position, size_type n, value_type const &val) {
-    difference_type idx = position.base() - _vector;
+    size_type index = std::distance(begin(), position);
 
-    if (_size + n > _capacity && _capacity * 2 < n)
+    if (_size + n > _capacity && _capacity * 2 < _size + n)
       reserve(_size + n);
+    position = iterator(begin() + index);
     for (size_type i = 0; i < n; i++)
-      insert(_vector + idx + i, val);
+      position = insert(position, val);
   }
   template <class InputIterator>
   void insert(iterator position,
               typename ft::enable_if<!ft::is_integral<InputIterator>::value,
                                      InputIterator>::type first,
               InputIterator last) {
-    difference_type idx = position.base() - _vector;
+    size_type index = std::distance(begin(), position);
+    size_type n = std::distance(first, last);
 
-    for (; first != last; first++, idx++)
-      insert(_vector + idx, *first);
+    if (_size + n > _capacity && _capacity * 2 < _size + n)
+      reserve(_size + n);
+    position = iterator(begin() + index);
+    for (; first != last; ++first, ++position)
+      position = insert(position, *first);
   }
   iterator erase(iterator position) {
     _allocator.destroy(position.base());
@@ -234,5 +236,46 @@ public:
    */
   allocator_type get_allocator(void) const { return _allocator; }
 };
+
+template <class T, class Allocator>
+bool operator==(vector<T, Allocator> const &x, vector<T, Allocator> const &y) {
+  if (x.size() != y.size())
+    return false;
+  for (typename vector<T>::const_iterator xit = x.begin(), yit = y.begin();
+       xit != x.end(); xit++, yit++)
+    if (!(*xit == *yit))
+      return false;
+  return true;
+}
+
+template <class T, class Allocator>
+bool operator!=(vector<T, Allocator> const &x, vector<T, Allocator> const &y) {
+  return !(x == y);
+}
+
+template <class T, class Allocator>
+bool operator<(vector<T, Allocator> const &x, vector<T, Allocator> const &y) {
+  return ft::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end());
+}
+
+template <class T, class Allocator>
+bool operator>(vector<T, Allocator> const &x, vector<T, Allocator> const &y) {
+  return y < x;
+}
+
+template <class T, class Allocator>
+bool operator<=(vector<T, Allocator> const &x, vector<T, Allocator> const &y) {
+  return !(y < x);
+}
+
+template <class T, class Allocator>
+bool operator>=(vector<T, Allocator> const &x, vector<T, Allocator> const &y) {
+  return !(x < y);
+}
+
+template <class T, class Allocator>
+void swap(vector<T, Allocator> &x, vector<T, Allocator> &y) {
+  x.swap(y);
+}
 }; // namespace ft
 #endif
