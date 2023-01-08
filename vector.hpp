@@ -190,7 +190,7 @@ public:
       insert(_vector + idx, *first);
   }
   iterator erase(iterator position) {
-    _allocator.destroy(*position);
+    _allocator.destroy(position.base());
     for (iterator it = position; it + 1 != end(); it++)
       *it = *(it + 1);
     _size = _size - 1;
@@ -198,11 +198,14 @@ public:
   }
   iterator erase(iterator first, iterator last) {
     for (iterator it = first; it < last; it++)
-      _allocator.destroy(*it);
+      _allocator.destroy(it.base());
+    iterator firstcpy = first;
+    iterator lastcpy = last;
+    while (lastcpy < end()) {
+      *firstcpy = *lastcpy;
+      firstcpy++, lastcpy++;
+    }
     _size = _size - (last - first);
-    iterator itptr = first;
-    for (iterator it = last; it < end(); it++, itptr++)
-      *itptr = *it;
     return first;
   }
   void swap(vector &x) {
