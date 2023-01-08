@@ -48,7 +48,7 @@ template <class T> struct vector_iterator {
     return old;
   }
 
-  vector_iterator operator--(void) {
+  vector_iterator &operator--(void) {
     _cursor = _cursor - 1;
     return *this;
   }
