@@ -27,7 +27,10 @@ template <class Iterator> struct reverse_iterator {
   reverse_iterator operator+(difference_type n) const {
     return reverse_iterator(_it - n);
   }
-  reverse_iterator &operator++(void) { return --_it; }
+  reverse_iterator &operator++(void) {
+    --_it;
+    return *this;
+  }
   reverse_iterator operator++(int) {
     reverse_iterator tmp = *this;
     --_it;
@@ -40,7 +43,10 @@ template <class Iterator> struct reverse_iterator {
   reverse_iterator operator-(difference_type n) const {
     return reverse_iterator(_it + n);
   }
-  reverse_iterator &operator--(void) { return ++_it; }
+  reverse_iterator &operator--(void) {
+    ++_it;
+    return *this;
+  }
   reverse_iterator operator--(int) {
     reverse_iterator tmp = *this;
     ++_it;
