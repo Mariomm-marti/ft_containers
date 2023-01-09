@@ -1,19 +1,18 @@
 #ifndef FT_CONTAINERS_VECTOR_HPP_
 #define FT_CONTAINERS_VECTOR_HPP_
-#include "lexicographical_compare.hpp"
 #pragma once
 
 #include "enable_if.hpp"
 #include "is_integral.hpp"
+#include "lexicographical_compare.hpp"
 #include "reverse_iterator.hpp"
 #include "vector_iterator.hpp"
-#include <iostream>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
 
 namespace ft {
-template <class T, class Allocator = std::allocator<T> > class vector {
+template <class T, class Allocator = std::allocator<T>> class vector {
 public:
   typedef T value_type;
   typedef Allocator allocator_type;
