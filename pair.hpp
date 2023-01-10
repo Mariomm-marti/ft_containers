@@ -15,7 +15,7 @@ template <class T1, class T2> struct pair {
   pair(pair<U, V> const &pr) : first(pr.first), second(pr.second) {}
   pair(first_type const &a, second_type const &b) : first(a), second(b) {}
 
-  pair &operator=(pair const &pr) {
+  template <class U, class V> pair &operator=(pair<U, V> const &pr) {
     first = pr.first;
     second = pr.second;
     return *this;
