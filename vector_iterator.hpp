@@ -40,7 +40,7 @@ template <class T> struct vector_iterator {
   reference operator*(void) { return *_cursor; }
   pointer operator->(void) { return _cursor; }
 
-  vector_iterator operator++(void) {
+  vector_iterator &operator++(void) {
     _cursor = _cursor + 1;
     return *this;
   }
