@@ -1,5 +1,6 @@
 #ifndef FT_CONTAINERS_RBTREE_ITERATOR_HPP_
 #define FT_CONTAINERS_RBTREE_ITERATOR_HPP_
+#include <stdexcept>
 #pragma once
 
 #include "rbtree_node.hpp"
@@ -16,14 +17,18 @@ template <class T, class Compare = std::less<T>> struct rbtree_iterator {
   typedef value_type &reference;
 
   rbtree_iterator(void) : _cursor(NULL){};
-  rbtree_iterator(pointer const x) : _cursor(x){};
+  rbtree_iterator(pointer const x, pointer const root)
+      : _cursor(x), _root(root){};
   template <class CopyIterator>
-  rbtree_iterator(rbtree_iterator<CopyIterator> const &x) : _cursor(x.base()){};
-  rbtree_iterator(rbtree_iterator const &x) : _cursor(x.base()){};
+  rbtree_iterator(rbtree_iterator<CopyIterator> const &x)
+      : _cursor(x.base()), _root(x.root()){};
+  rbtree_iterator(rbtree_iterator const &x)
+      : _cursor(x.base()), _root(x.root()){};
 
   template <class Iter>
   rbtree_iterator &operator=(rbtree_iterator<Iter> const &x) {
     _cursor = x.base();
+    _root = x.root();
   };
 
   template <class Iter> bool operator==(rbtree_iterator<Iter> const &x) const {
@@ -39,10 +44,13 @@ template <class T, class Compare = std::less<T>> struct rbtree_iterator {
   rbtree_iterator &operator++(void) {
     pointer tmp;
 
-    if (_cursor == NULL)
-      return *this;
-    if (_cursor->parent == NULL) {
-
+    if (_cursor == NULL && _root == NULL) {
+      throw std::underflow_error("Attempting to iterate RBTree with NULL root");
+    }
+    if (_cursor == NULL) {
+      _cursor = _root;
+      while (_cursor->left != NULL)
+        _cursor = _cursor->left;
       return *this;
     }
     if (_cursor->right != NULL) {
@@ -69,8 +77,9 @@ template <class T, class Compare = std::less<T>> struct rbtree_iterator {
   rbtree_iterator &operator--(void) {
     pointer tmp;
 
-    if (_cursor == NULL)
-      return *this;
+    if (_cursor == NULL && _root == NULL) {
+      throw std::underflow_error("Attempting to iterate RBTree with NULL root");
+    }
 
     return *this;
   };
@@ -82,9 +91,11 @@ template <class T, class Compare = std::less<T>> struct rbtree_iterator {
   };
 
   pointer const base(void) const { return _cursor; }
+  pointer const root(void) const { return _root; }
 
 private:
   pointer _cursor;
+  pointer _root;
 };
 }; // namespace ft
 

@@ -2,6 +2,7 @@
 #define FT_CONTAINERS_RBTREE_NODE_HPP_
 #pragma once
 
+#include <cstddef>
 #include <functional>
 
 namespace ft {
